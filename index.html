@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>港股情绪看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1117;
+    --panel: #161b22;
+    --panel-border: rgba(255,255,255,0.08);
+    --text: #e5e7eb;
+    --muted: rgba(229,231,235,0.55);
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --amber: #f59e0b;
+    --teal: #14b8a6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  }
+  .container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: 24px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .updated {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .card .label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .card .value {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .card .sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 18px 20px 8px;
+    margin-bottom: 20px;
+  }
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .panel-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .panel-source {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .chart-wrap {
+    position: relative;
+    height: 280px;
+  }
+  .empty-note {
+    padding: 40px 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .range-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .range-tabs button {
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .range-tabs button.active {
+    color: var(--text);
+    border-color: var(--blue);
+    background: rgba(59,130,246,0.12);
+  }
+  footer {
+    margin-top: 30px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  a { color: var(--blue); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>📈 港股情绪看板</h1>
+    <div class="updated" id="updated-at">加载中...</div>
+  </header>
+
+  <div class="cards" id="cards">
+    <div class="card">
+      <div class="label">南向资金 · 最新净流入</div>
+      <div class="value" id="card-southbound">--</div>
+      <div class="sub" id="card-southbound-sub">&nbsp;</div>
+    </div>
+    <div class="card">
+      <div class="label">大市成交额（可沽空证券口径）</div>
+      <div class="value" id="card-turnover">--</div>
+      <div class="sub" id="card-turnover-sub">&nbsp;</div>
+    </div>
+    <div class="card">
+      <div class="label">沽空比率</div>
+      <div class="value" id="card-shortratio">--</div>
+      <div class="sub" id="card-shortratio-sub">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">南向资金每日净流入（亿港元）</div>
+      <div class="panel-source">数据源：东方财富 datacenter-web（沪深港通历史数据）</div>
+    </div>
+    <div class="range-tabs" id="southbound-range">
+      <button data-days="30">1个月</button>
+      <button data-days="90">3个月</button>
+      <button data-days="365" class="active">1年</button>
+      <button data-days="99999">全部</button>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-southbound"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">大市成交额（亿港元）</div>
+      <div class="panel-source">数据源：AAStocks 大巿沽空（每日快照累积）</div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-turnover"></canvas></div>
+    <div class="empty-note" id="turnover-empty" style="display:none;">数据从上线之日起每个交易日自动累积，暂无足够历史记录</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">沽空比率（%）</div>
+      <div class="panel-source">数据源：AAStocks 大巿沽空（每日快照累积）</div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-shortratio"></canvas></div>
+    <div class="empty-note" id="shortratio-empty" style="display:none;">数据从上线之日起每个交易日自动累积，暂无足够历史记录</div>
+  </div>
+
+  <footer>
+    本看板数据每个香港交易日收盘后自动更新一次，仅供参考，不构成任何投资建议。<br>
+    南向资金：东方财富财经数据中心公开接口 &nbsp;|&nbsp; 大市成交额 / 沽空比率：AAStocks.com 公开页面（大巿沽空研究，覆盖当日全部可沽空证券）<br>
+    源码：<a href="https://github.com/lv334554-cyber/hk-sentiment-dashboard" target="_blank">GitHub</a>
+  </footer>
+
+</div>
+
+<script>
+const COLORS = {
+  green: '#22c55e', red: '#ef4444', blue: '#3b82f6',
+  purple: '#8b5cf6', amber: '#f59e0b', teal: '#14b8a6',
+  grid: 'rgba(255,255,255,0.06)', font: '#e5e7eb', muted: 'rgba(229,231,235,0.5)'
+};
+
+Chart.defaults.color = COLORS.font;
+Chart.defaults.borderColor = COLORS.grid;
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+
+function fmtNum(n, digits = 2) {
+  if (n === null || n === undefined || isNaN(n)) return '--';
+  return Number(n).toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function daysAgo(dateStr, days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return dateStr >= d.toISOString().slice(0, 10);
+}
+
+let southboundFull = [];
+let southboundChart = null;
+
+function renderSouthboundChart(days) {
+  const filtered = days >= 99999 ? southboundFull : southboundFull.filter(r => daysAgo(r.date, days));
+  const labels = filtered.map(r => r.date);
+  const values = filtered.map(r => r.net_flow);
+  const colors = values.map(v => v >= 0 ? 'rgba(34,197,94,0.75)' : 'rgba(239,68,68,0.75)');
+
+  if (southboundChart) {
+    southboundChart.data.labels = labels;
+    southboundChart.data.datasets[0].data = values;
+    southboundChart.data.datasets[0].backgroundColor = colors;
+    southboundChart.update();
+    return;
+  }
+
+  const ctx = document.getElementById('chart-southbound').getContext('2d');
+  southboundChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: '南向资金净流入（亿港元）',
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 0,
+        barPercentage: 0.9,
+        categoryPercentage: 0.9,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${fmtNum(ctx.parsed.y)} 亿港元`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, color: COLORS.muted } },
+        y: { grid: { color: COLORS.grid }, ticks: { color: COLORS.muted } }
+      }
+    }
+  });
+}
+
+function renderLineChart(canvasId, records, key, label, color, unit, emptyElId) {
+  const emptyEl = document.getElementById(emptyElId);
+  if (!records || records.length === 0) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: records.map(r => r.date),
+      datasets: [{
+        label,
+        data: records.map(r => r[key]),
+        borderColor: color,
+        backgroundColor: color + '22',
+        fill: true,
+        tension: 0.25,
+        pointRadius: records.length > 60 ? 0 : 3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${fmtNum(ctx.parsed.y)} ${unit}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, color: COLORS.muted } },
+        y: { grid: { color: COLORS.grid }, ticks: { color: COLORS.muted } }
+      }
+    }
+  });
+}
+
+async function main() {
+  let data;
+  try {
+    const res = await fetch('market_data.json?_=' + Date.now());
+    data = await res.json();
+  } catch (e) {
+    document.getElementById('updated-at').textContent = '数据加载失败';
+    return;
+  }
+
+  document.getElementById('updated-at').textContent = '最后更新：' + (data.last_updated || '--');
+
+  // 南向资金
+  southboundFull = data.southbound || [];
+  if (southboundFull.length > 0) {
+    const latest = southboundFull[southboundFull.length - 1];
+    const isUp = latest.net_flow >= 0;
+    document.getElementById('card-southbound').innerHTML =
+      `<span class="${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${fmtNum(latest.net_flow)}</span> 亿`;
+    document.getElementById('card-southbound-sub').textContent = latest.date;
+  }
+  renderSouthboundChart(365);
+  document.querySelectorAll('#southbound-range button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#southbound-range button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSouthboundChart(Number(btn.dataset.days));
+    });
+  });
+
+  // 大市成交额
+  const turnover = data.turnover || [];
+  if (turnover.length > 0) {
+    const latest = turnover[turnover.length - 1];
+    document.getElementById('card-turnover').textContent = fmtNum(latest.turnover) + ' 亿';
+    document.getElementById('card-turnover-sub').textContent = latest.date;
+  }
+  renderLineChart('chart-turnover', turnover, 'turnover', '大市成交额', COLORS.blue, '亿港元', 'turnover-empty');
+
+  // 沽空比率
+  const shortRatio = data.short_ratio || [];
+  if (shortRatio.length > 0) {
+    const latest = shortRatio[shortRatio.length - 1];
+    const delta = latest.short_ratio - (latest.prev_short_ratio ?? latest.short_ratio);
+    const isUp = delta >= 0;
+    document.getElementById('card-shortratio').textContent = fmtNum(latest.short_ratio) + '%';
+    document.getElementById('card-shortratio-sub').innerHTML =
+      `${latest.date} · <span class="${isUp ? 'up' : 'down'}">${isUp ? '↑' : '↓'} ${fmtNum(Math.abs(delta))}%</span> 较前值`;
+  }
+  renderLineChart('chart-shortratio', shortRatio, 'short_ratio', '沽空比率', COLORS.amber, '%', 'shortratio-empty');
+}
+
+main();
+</script>
+</body>
+</html>
