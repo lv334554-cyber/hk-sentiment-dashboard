@@ -2819,6 +2819,10 @@
     {
       "date": "2026-07-13",
       "net_flow": 90.38
+    },
+    {
+      "date": "2026-07-14",
+      "net_flow": 109.97
     }
   ],
   "turnover": [
@@ -2829,6 +2833,10 @@
     {
       "date": "2026-07-13",
       "turnover": 2812.7
+    },
+    {
+      "date": "2026-07-14",
+      "turnover": 2840.83
     }
   ],
   "short_ratio": [
@@ -2843,7 +2851,13 @@
       "short_ratio": 21.075,
       "prev_short_ratio": 16.309,
       "short_amount": 592.77
+    },
+    {
+      "date": "2026-07-14",
+      "short_ratio": 18.616,
+      "prev_short_ratio": 21.075,
+      "short_amount": 528.85
     }
   ],
-  "last_updated": "2026-07-13 20:20:47"
+  "last_updated": "2026-07-14 19:07:44"
 }
