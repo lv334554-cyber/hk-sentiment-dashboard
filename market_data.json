@@ -2997,6 +2997,10 @@
     {
       "date": "2026-08-11",
       "turnover": 1909.49
+    },
+    {
+      "date": "2026-08-12",
+      "turnover": 1973.43
     }
   ],
   "short_ratio": [
@@ -3137,7 +3141,16 @@
       "short_ratio": 15.374,
       "prev_short_ratio": 16.843,
       "short_amount": 293.56
+    },
+    {
+      "date": "2026-08-12",
+      "short_ratio": 16.111,
+      "prev_short_ratio": 15.396,
+      "short_amount": 317.95
     }
   ],
-  "last_updated": "2026-08-11 18:25:14"
+  "last_updated": "2026-08-12 18:35:06",
+  "_errors": [
+    "southbound: The read operation timed out"
+  ]
 }
