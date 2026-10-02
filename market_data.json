@@ -3281,6 +3281,10 @@
     {
       "date": "2026-09-30",
       "turnover": 1692.14
+    },
+    {
+      "date": "2026-10-02",
+      "turnover": 1291.03
     }
   ],
   "short_ratio": [
@@ -3637,7 +3641,13 @@
       "short_ratio": 21.355,
       "prev_short_ratio": 25.285,
       "short_amount": 361.35
+    },
+    {
+      "date": "2026-10-02",
+      "short_ratio": 30.904,
+      "prev_short_ratio": 21.355,
+      "short_amount": 398.98
     }
   ],
-  "last_updated": "2026-10-02 00:38:56"
+  "last_updated": "2026-10-02 23:55:49"
 }
