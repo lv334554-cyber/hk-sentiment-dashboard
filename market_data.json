@@ -3083,6 +3083,10 @@
     {
       "date": "2026-10-22",
       "net_flow": -92.18
+    },
+    {
+      "date": "2026-10-23",
+      "net_flow": -16.7
     }
   ],
   "turnover": [
@@ -3819,5 +3823,8 @@
       "short_amount": 461.66
     }
   ],
-  "last_updated": "2026-10-22 22:36:17"
+  "last_updated": "2026-10-23 22:20:47",
+  "_errors": [
+    "aastocks snapshot: The read operation timed out"
+  ]
 }
