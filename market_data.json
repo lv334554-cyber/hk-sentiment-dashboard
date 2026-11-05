@@ -3115,6 +3115,14 @@
     {
       "date": "2026-11-03",
       "net_flow": 234.2
+    },
+    {
+      "date": "2026-11-04",
+      "net_flow": -32.77
+    },
+    {
+      "date": "2026-11-05",
+      "net_flow": -213.26
     }
   ],
   "turnover": [
@@ -3441,6 +3449,10 @@
     {
       "date": "2026-11-04",
       "turnover": 2164.96
+    },
+    {
+      "date": "2026-11-05",
+      "turnover": 3298.81
     }
   ],
   "short_ratio": [
@@ -3929,10 +3941,13 @@
       "short_ratio": 24.487,
       "prev_short_ratio": 33.915,
       "short_amount": 530.12
+    },
+    {
+      "date": "2026-11-05",
+      "short_ratio": 21.227,
+      "prev_short_ratio": 24.558,
+      "short_amount": 700.22
     }
   ],
-  "last_updated": "2026-11-05 01:25:36",
-  "_errors": [
-    "southbound: The read operation timed out"
-  ]
+  "last_updated": "2026-11-06 01:34:04"
 }
